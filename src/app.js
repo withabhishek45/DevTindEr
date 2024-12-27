@@ -5,13 +5,25 @@ const app=express();
 
 app.use("/user",(req,res,next)=>{
     console.log("Handling the !st route user....");
-   res.send('Response!!!');
+  // res.send('Response!!!');
    next();
 },
-    (req,res)=>{
+    (req,res,next)=>{
         console.log("Handling the 2nd route user....");
-        res.send(' Second Response!!!');
+      //  res.send(' Second Response!!!');
+      next();
     
+},
+(req,res,next)=>{
+    console.log("Handling the 3rd route user....");
+   // res.send(' Third Response!!!');
+   next();
+
+},
+(req,res)=>{
+    console.log("Handling the 4th route user....");
+    res.send(' Fourth Response!!!');
+
 });
 // app.get("/user",(req,res)=>{
 //     res.send({fname:"Abhishek",lname:"Kumar"})
