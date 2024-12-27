@@ -3,7 +3,9 @@ const express=require('express')
 const app=express();
 
 
-app.use("/user",(req,res,next)=>{
+app.use("/user",
+[
+    (req,res,next)=>{
     console.log("Handling the !st route user....");
   // res.send('Response!!!');
    next();
@@ -24,7 +26,8 @@ app.use("/user",(req,res,next)=>{
     console.log("Handling the 4th route user....");
     res.send(' Fourth Response!!!');
 
-});
+}
+]);
 // app.get("/user",(req,res)=>{
 //     res.send({fname:"Abhishek",lname:"Kumar"})
 // })
