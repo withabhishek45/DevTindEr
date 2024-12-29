@@ -2,20 +2,15 @@ const express=require('express')
 
 const app=express();
 
-const {adminAuth, numberCheck}=require("./MIDDLEWARE/auth")
+const {adminAuth, userAuth}=require("./MIDDLEWARE/auth")
 
 app.use("/admin", adminAuth);
 
-app.use("/user",numberCheck ,(req, res, next) => {
-    const number = 5;
-    const correct = number  === 5;
- 
-    if (correct) {
-       res.send('Number  is correct');
-    } else {
-       res.status(401).send("Number is incorrect");
-    }
- });
+app.get("/user",userAuth,(res,req)=>{
+   res.send("User Data send....");
+});
+
+
  
 //
 

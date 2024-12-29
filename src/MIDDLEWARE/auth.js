@@ -2,29 +2,32 @@
 
 // const app=express()
 
-const adminAuth=(req, res, next) => {
-    const age = 5;
-    const correct = age === 25;
- 
-    if (correct) {
-       res.send('Age is correct');
-    } else {
-       res.status(401).send("Age is incorrect");
+const adminAuth=(res,req,next)=>{
+    console.log("Admin Auth is getting checked!")
+    const token="xyz"
+    const isCorrect = token === "xyz"
+    if(!isCorrect){
+        res.status(401).send("Unauthorised Request..")
     }
- };
-const numberCheck= (req, res, next) => {
-    const age = 5;
-    
- 
-    if (age=> 18) {
-       res.send('You are Adult');
-    } else {
-       res.status(401).send("You are Minor");
+    else{
+        next();
+        }
+}
+
+const userAuth=(res,req,next)=>{
+    console.log("User Auth is getting checked!")
+    const token="xyz"
+    const isCorrect = token === "xyz"
+    if(!isCorrect){
+        res.status(401).send("Unauthorised Request..")
     }
- };
+    else{
+        
+        }
+}
 module.exports={
+    adminAuth,userAuth
     
-    numberCheck
 
 }
 //  app.listen(3000,()=>{
