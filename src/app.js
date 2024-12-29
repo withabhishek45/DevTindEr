@@ -18,6 +18,21 @@ app.get("/user",async (req,res)=>{
 
 })
 
+// find by id and Delte the user 
+app.delete("/user",async (req,res)=>{
+   const id=req.body.id;
+   try{
+      const user=await User.findByIdAndDelete(id);
+      //res.send(user)
+      res.send("User deleted succesfully.." )
+      }
+      catch(err){
+         res.status(404).send("something went wrong!" + err.message)
+         }
+      }
+)
+
+
 // Fetch Api  - all the user
 
 app.get("/feed",async(req,res)=>{
