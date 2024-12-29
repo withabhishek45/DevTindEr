@@ -14,7 +14,7 @@ const adminAuth=(res,req,next)=>{
         }
 }
 
-const userAuth=(res,req,next)=>{
+const userAuth=(req,res,next)=>{
     console.log("User Auth is getting checked!")
     const token="xyz"
     const isCorrect = token === "xyz"
@@ -22,7 +22,7 @@ const userAuth=(res,req,next)=>{
         res.status(401).send("Unauthorised Request..")
     }
     else{
-        
+        next();
         }
 }
 module.exports={
