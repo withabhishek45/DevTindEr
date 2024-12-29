@@ -1,8 +1,40 @@
 const express=require('express')
 const connectDB=require("./config/database")
-const USer=require("./models/user")
+const User=require("./models/user")
 const app=express();
 app.use(express.json(   ))
+
+//Getting a user by Role
+app.get("/user",async (req,res)=>{
+   const role=req.body.role;
+   try{
+      const user=await User.find({role:role});
+      res.send(user)
+
+   }
+   catch(err){
+      res.status(404).send("something went wrong!" + err.message)
+   }
+
+})
+
+// Fetch Api  - all the user
+
+app.get("/feed",async(req,res)=>{
+
+   try{
+      const user=await User.find({});
+      res.send(user)
+   }
+   catch(err){
+      res.status(404).send("something went wrong!" + err.message)
+      }
+})
+
+
+
+
+
 
 app.post("/signup",async(req,res)=>{
 
@@ -10,7 +42,7 @@ app.post("/signup",async(req,res)=>{
    console.log(req.body)
   
    //  creating new user model
-   const user=new USer(req.body)
+   const user=new User(req.body)
    // const user=new USer({
    //    name:"Abhishek kr",
    //    email:"abhishek123@gmail.com",
@@ -19,7 +51,8 @@ app.post("/signup",async(req,res)=>{
    //    address:"RAnchi jh",
    //    role:"Student"
    // });
-   try{   await user.save();
+   try{  
+       await user.save();
    res.send("User created successfully");
    }catch(err){
       res.status(400).send("User Data Not Saved"+err.message);
@@ -37,5 +70,7 @@ connectDB()
         console.log("Database not connected");
         });
     
+
+        //
 
 
