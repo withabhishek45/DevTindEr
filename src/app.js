@@ -31,6 +31,23 @@ app.delete("/user",async (req,res)=>{
          }
       }
 )
+// Update Data of the user
+app.patch("/user" ,async(req,res)=>{
+   const id=req.body.id;
+   const role=req.body.role;
+   const email=req.body.email;
+  const name=req.body.name;
+   try{
+      const user=await User.findByIdAndUpdate(id,{name,role,email});
+         res.send("Data Updated Successfully...")
+         }
+         catch(err){
+            res.status(404).send("something went wrong!" + err.message)
+            }
+
+
+
+})
 
 
 // Fetch Api  - all the user
