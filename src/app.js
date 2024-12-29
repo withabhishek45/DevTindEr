@@ -38,7 +38,8 @@ app.patch("/user" ,async(req,res)=>{
    const email=req.body.email;
   const name=req.body.name;
    try{
-      const user=await User.findByIdAndUpdate(id,{name,role,email});
+      const user=await User.findByIdAndUpdate(id,{name,role,email},{returnDocument:"after"});
+         console.log(user)
          res.send("Data Updated Successfully...")
          }
          catch(err){
