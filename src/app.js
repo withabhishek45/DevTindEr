@@ -2,32 +2,23 @@ const express=require('express')
 
 const app=express();
 
+const {adminAuth, numberCheck}=require("./MIDDLEWARE/auth")
 
-app.use("/user",
-[
-    (req,res,next)=>{
-    console.log("Handling the !st route user....");
-  // res.send('Response!!!');
-   next();
-},
-    (req,res,next)=>{
-        console.log("Handling the 2nd route user....");
-      //  res.send(' Second Response!!!');
-      next();
-    
-},
-(req,res,next)=>{
-    console.log("Handling the 3rd route user....");
-   // res.send(' Third Response!!!');
-   next();
+app.use("/admin", adminAuth);
 
-},
-(req,res)=>{
-    console.log("Handling the 4th route user....");
-    res.send(' Fourth Response!!!');
+app.use("/user",numberCheck ,(req, res, next) => {
+    const number = 5;
+    const correct = number  === 5;
+ 
+    if (correct) {
+       res.send('Number  is correct');
+    } else {
+       res.status(401).send("Number is incorrect");
+    }
+ });
+ 
+//
 
-}
-]);
 // app.get("/user",(req,res)=>{
 //     res.send({fname:"Abhishek",lname:"Kumar"})
 // })
