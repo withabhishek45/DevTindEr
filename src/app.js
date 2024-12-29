@@ -1,29 +1,19 @@
 const express=require('express')
-
+const connectDB=require("./config/database")
 const app=express();
-app.use("/",(err,req,res,next)=>{
-   if(err){
-      //log your error
-      res.status(400).send("Internal Server Error");
-   }
-});
 
-app.get("/getUserData",(req,res,next)=>{
-   try{
-      
-   throw new Error("Internal  Error");
-   res.send("Data send successfully...")
-
-   }
-   catch(err){
-res.status(500).send("Something Went Wrong...  Contact Support Team ")
-
-   }
 
    
-})
+
+connectDB()
+.then(()=>{
+    console.log("MongoDB DataBase  connected Successfuly ");
+    app.listen(3000,()=>{
+      console.log('server is running on port 3000')
+  });
+    }).catch(err=>{
+        console.log("Database not connected");
+        });
+    
 
 
-app.listen(3000,()=>{
-    console.log('server is running on port 3000')
-});
