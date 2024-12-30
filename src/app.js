@@ -3,10 +3,13 @@ const connectDB=require("./config/database")
 const User=require("./models/user")
 const {validateSingupData}=require("./utilies/valdation")
 const bcrypt=require("bcrypt");
+const cookieParser=require("cookie-parser");
+
 
 
 const app=express();
-app.use(express.json())
+app.use(express.json());
+app.use(cookieParser());
 
 //Getting a user by Role
 app.get("/user",async (req,res)=>{
@@ -267,6 +270,11 @@ app.post("/signup", async (req, res) => {
     if(!isPwdValid){
       return res.status(400).send("Invalid password");
       }
+      //create a JWT tokens
+
+
+      //Add the token to cookie and send the response back to the user..
+      res.cookie("token","kdjngsdgnskkjndsk");
       // Send success response after validation
       res.send("Login successful !!!");
 
@@ -274,6 +282,16 @@ app.post("/signup", async (req, res) => {
       res.status(400).send("Invalid email or password");
    }
  });
+
+ /// User profile
+ app.get("/profile",  async (req, res) => {
+   // Get the token from the cookie
+   const cookie=req.cookies
+   console.log(cookie)
+   res.send("reading cokkiess....")
+   
+   });
+
    
 
 connectDB()
