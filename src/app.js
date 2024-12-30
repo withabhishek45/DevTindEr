@@ -32,34 +32,82 @@ app.delete("/user",async (req,res)=>{
       }
 )
 // Update Data of the user
-app.patch("/user" ,async(req,res)=>{
-   const id=req.body.id;
-   const data=req.body
+// app.patch("/user/:id" ,async(req,res)=>{
+//    const id=req.params?.id;
+//    const data=req.body
  
 
-   try{
-       // Upadting Certain item , not sensitive item and not insert dummy key-value
-  const UpadteAllowed=[
-   // not email allowed
-   "name","password","role","address","gender","id" ]
-   const isUpadteAllowed=Object.keys(data).every((k)=>
-      UpadteAllowed.includes(k)
-   );
-   if(!isUpadteAllowed){
-      throw new Error("Invalid fields to update , Update Not Allowed" )
+//    try{
+//        // Upadting Certain item , not sensitive item and not insert dummy key-value
+//   const UpadteAllowed=[
+//    // not email allowed
+//    "name","password","role","address","gender", ]
+//    const isUpadteAllowed=Object.keys(data).every((k)=>
+//       UpadteAllowed.includes(k)
+//    );
+//    if(!isUpadteAllowed){
+//       throw new Error("Invalid fields to update , Update Not Allowed" )
 
+//    }
+//       const user=await User.findByIdAndUpdate(id,{data},{returnDocument:"after"});
+//          console.log(user)
+//          res.send("Data Updated Successfully...")
+//          }
+//          catch(err){
+//             res.status(404).send("something went wrong!" + err.message)
+//             }
+
+
+
+// })
+// Update Data of the user
+app.patch("/user/:id", async (req, res) => {
+   const id = req.params?.id; // Extracting ID from route parameters
+   const data = req.body; // Extracting the data to update from the request body
+
+   try {
+       // Allowable fields for update
+       const allowedUpdates = ["name", "password", "role", "address", "gender"];
+       
+       // Check if all keys in data are allowed for update
+       const isValidOperation = Object.keys(data).every((key) =>
+           allowedUpdates.includes(key)
+       );
+
+       if (!isValidOperation) {
+           return res.status(400).send({ 
+               success: false, 
+               message: "Invalid fields to update. Update not allowed." 
+           });
+       }
+
+       // Find the user by ID and update with valid fields
+       const user = await User.findByIdAndUpdate(id, data, {
+           new: true, // Return the updated document
+           runValidators: true, // Ensure Mongoose validation rules are applied
+       });
+
+       if (!user) {
+           return res.status(404).send({
+               success: false,
+               message: "User not found.",
+           });
+       }
+
+       res.send({
+           success: true,
+           message: "Data updated successfully.",
+           data: user,
+       });
+   } catch (err) {
+       res.status(500).send({ 
+           success: false, 
+           message: "Something went wrong!", 
+           error: err.message 
+       });
    }
-      const user=await User.findByIdAndUpdate(id,{data},{returnDocument:"after"});
-         console.log(user)
-         res.send("Data Updated Successfully...")
-         }
-         catch(err){
-            res.status(404).send("something went wrong!" + err.message)
-            }
+});
 
-
-
-})
 
 
 // Fetch Api  - all the user
