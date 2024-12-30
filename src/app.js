@@ -34,11 +34,22 @@ app.delete("/user",async (req,res)=>{
 // Update Data of the user
 app.patch("/user" ,async(req,res)=>{
    const id=req.body.id;
-   const role=req.body.role;
-   const email=req.body.email;
-  const name=req.body.name;
+   const data=req.body
+ 
+
    try{
-      const user=await User.findByIdAndUpdate(id,{name,role,email},{returnDocument:"after"});
+       // Upadting Certain item , not sensitive item and not insert dummy key-value
+  const UpadteAllowed=[
+   // not email allowed
+   "name","password","role","address","gender","id" ]
+   const isUpadteAllowed=Object.keys(data).every((k)=>
+      UpadteAllowed.includes(k)
+   );
+   if(!isUpadteAllowed){
+      throw new Error("Invalid fields to update , Update Not Allowed" )
+
+   }
+      const user=await User.findByIdAndUpdate(id,{data},{returnDocument:"after"});
          console.log(user)
          res.send("Data Updated Successfully...")
          }
