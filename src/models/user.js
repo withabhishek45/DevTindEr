@@ -1,3 +1,4 @@
+const { compare } = require("bcrypt");
 const mongoose = require("mongoose");
 var validator = require('validator');
 
@@ -49,7 +50,27 @@ const userSchema = new mongoose.Schema(
     timestamps: true, // This ensures createdAt and updatedAt fields are automatically added
   }
 );
+// UserSchema Methods for jwt token
+userSchema.methods.getJWT =async function() {
+  const user = this;
+  const token =await jwt.sign({ _id: user._id }, "Abjisjk@#123",{
+    expiresIn: "1h",
 
+  } );
+      return token;
+      };
+
+    // UserSchema Methods for  validatepassword 
+    userSchema.methods.validatePassword = async function(passwordInputByUser) {
+      const user = this;
+      const hashedPassword = user.password;
+      const isPasswordValid=await bcrypt.compare(passwordInputByUser, user.password);
+      return isPasswordValidValid;
+      };
+
+      
+
+        
 
 
 

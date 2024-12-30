@@ -258,35 +258,64 @@ app.post("/signup", async (req, res) => {
  
  
  // Login  and validate emil pwd
- app.post("/login", async (req, res) => {
-   // Login validations
-   try{
-      const {email,password}=req.body
-      // check email
-      const user = await User.findOne({ email });
-      if (!user) {
-         return res.status(400).send("Email not found");
-         }
-         // check password
-    const isPwdValid=await bcrypt.compare(password,user.password)
-    if(!isPwdValid){
-      return res.status(400).send("Invalid password");
-      }
-      //create a JWT tokens
-      const token=await jwt.sign({id:user.id},"Abjisjk@#123",{
-         expiresIn:"1h" // cookies expires in 1 hours after login
-      })
-         console.log(token)
+//  app.post("/login",async (req, res) => {
+//    // Login validations
+//    try{
+//       const {email,password}=req.body
+//       // check email
+//       const user = await User.findOne({ email });
+//       if (!user) {
+//          return res.status(400).send("Email not found");
+//          }
+//          // check password
+//     const isPwdValid=await bcrypt.compare(password,user.password)
+//     if(!isPwdValid){
+//       return res.status(400).send("Invalid password");
+//       }
+//       //create a JWT tokens
+//       const token=await jwt.sign({id:user.id},"Abjisjk@#123",{
+//          expiresIn:"1h" // cookies expires in 1 hours after login
+//       })
+//          console.log(token)
 
-      //Add the token to cookie and send the response back to the user..
-      res.cookie("token",token,{
-         expires:"1h"
-      } );
-      // Send success response after validation
-      res.send("Login successful !!!");
+//       //Add the token to cookie and send the response back to the user..
+//       res.cookie("token",token,{
+//          expires:"1h"
+//       } );
+//       // Send success response after validation
+//       res.send("Login successful !!!");
 
-   }catch(err){
-      res.status(400).send("Invalid email or password");
+//    }catch(err){
+//       res.status(400).send("Invalid email or password");
+//    }
+//  });
+app.post("/login", async (req, res) => {
+   try {
+     const { email, password } = req.body;
+ 
+     // Check if email exists
+     const user = await User.findOne({ email });
+     if (!user) {
+       return res.status(400).send("Email not found");
+     }
+ 
+     // Validate password
+     const isValidPassword = await bcrypt.validatePassword(password);
+     if (isValidPassword) {
+      // Create JWT token
+      const token = await user.getJWT();
+       // Add the token to the cookie
+     res.cookie("token", token, {
+      httpOnly: true, // Prevents client-side JavaScript from accessing the cookie
+      maxAge: 3600000, // 1 hour in milliseconds
+    });
+
+    // Send success response
+    res.send("Login successful!");
+    }
+    } catch (err) {
+     console.error(err);
+     res.status(500).send("An error occurred. Please try again.");
    }
  });
 
@@ -310,6 +339,11 @@ app.post("/signup", async (req, res) => {
 
    
 // });
+app.post("/sendConnectionRequest", (req, res) => {
+   console.log("Request Body:", req.body); // Log the incoming body
+   res.send("Request received!");
+});
+
    
 
 connectDB()
