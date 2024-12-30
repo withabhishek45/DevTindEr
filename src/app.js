@@ -2,8 +2,11 @@ const express=require('express')
 const connectDB=require("./config/database")
 const User=require("./models/user")
 const {validateSingupData}=require("./utilies/valdation")
+const bcrypt=require("bcrypt");
+
+
 const app=express();
-app.use(express.json(   ))
+app.use(express.json())
 
 //Getting a user by Role
 app.get("/user",async (req,res)=>{
@@ -209,8 +212,12 @@ app.post("/signup", async (req, res) => {
    if (validData) {
      return res.status(400).send(validData.error); // Send the actual error message from validation
    }
- 
-   console.log(req.body);
+
+   // Encrypt the password
+   const{phone,password,address,role,gender}=req.body
+   const pwdHash= await bcrypt.hash(password,10)// 10X no of round encryption 
+   console.log(pwdHash)
+   // console.log(req.body);
  
    // Extract email and name from request body
    const { email, name } = req.body;
@@ -229,7 +236,9 @@ app.post("/signup", async (req, res) => {
      }
  
      // Create a new user instance if no duplicates found
-     const user = new User(req.body);
+     const user = new User({
+      email,name,phone,password:pwdHash,address,role,gender
+     });
  
      // Save the new user to the database
      await user.save();
@@ -243,6 +252,28 @@ app.post("/signup", async (req, res) => {
  });
  
  
+ // Login  and validate emil pwd
+ app.post("/login", async (req, res) => {
+   // Login validations
+   try{
+      const {email,password}=req.body
+      // check email
+      const user = await User.findOne({ email });
+      if (!user) {
+         return res.status(400).send("Email not found");
+         }
+         // check password
+    const isPwdValid=await bcrypt.compare(password,user.password)
+    if(!isPwdValid){
+      return res.status(400).send("Invalid password");
+      }
+      // Send success response after validation
+      res.send("Login successful !!!");
+
+   }catch(err){
+      res.status(400).send("Invalid email or password");
+   }
+ });
    
 
 connectDB()

@@ -17,16 +17,16 @@ const userSchema = new mongoose.Schema(
       }
     },
     password: { type: String, required: true ,
-        validate: {
-            validator: function (value) {
-              // Strong password regex: Minimum 8 characters, at least one uppercase letter, one lowercase letter, one number, and one special character
-              const strongPasswordRegex =
-                /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
-              return strongPasswordRegex.test(value);
-            },
-            message:
-              "Password must be at least 8 characters long and include one uppercase letter, one lowercase letter, one number, and one special character.",
-          }
+        // validate: {
+        //     validator: function (value) {
+        //       // Strong password regex: Minimum 8 characters, at least one uppercase letter, one lowercase letter, one number, and one special character
+        //       const strongPasswordRegex =
+        //         /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+        //       return strongPasswordRegex.test(value);
+        //     },
+        //     message:
+        //       "Password must be at least 8 characters long and include one uppercase letter, one lowercase letter, one number, and one special character.",
+        //   }
 
     },
     phone: { type: String },
