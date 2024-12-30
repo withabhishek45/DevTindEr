@@ -1,35 +1,43 @@
-// const express=require("express")
+const jwt=require("jsonwebtoken");
+const User=require("../models/user");
 
-// const app=express()
+const userAuth=async(req,res,next)=>{
+   try{
+     // Read the tokens from the req cokkies
+     const {token}=req.cookies;
+     if(!token){
+        throw new Error("token not found.")
+     }
+     const decodedObj= await jwt.verify(token,"Abjisjk@#123")
+     const {id}=decodedObj
+     const user=await User.findById(id);
+     if(!user){
+         throw new Error("User not found.")
+     }
+     else{
+        req.user=user;
+         next();
+     }
+   }
+   catch(err){
+    res.status(404).send("Error! "+ err.message )
+    
+   }
 
-const adminAuth=(res,req,next)=>{
-    console.log("Admin Auth is getting checked!")
-    const token="xyz"
-    const isCorrect = token === "xyz"
-    if(!isCorrect){
-        res.status(401).send("Unauthorised Request..")
-    }
-    else{
-        next();
-        }
+
+
+
+
+
+    //Validate the token
+
+
+    //Find the user
+
 }
 
-const userAuth=(req,res,next)=>{
-    console.log("User Auth is getting checked!")
-    const token="xyz"
-    const isCorrect = token === "xyz"
-    if(!isCorrect){
-        res.status(401).send("Unauthorised Request..")
-    }
-    else{
-        next();
-        }
-}
 module.exports={
-    adminAuth,userAuth
+    userAuth
     
 
 }
-//  app.listen(3000,()=>{
-//     console.log('server is running on port 3000')
-// });

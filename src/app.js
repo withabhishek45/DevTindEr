@@ -5,6 +5,7 @@ const {validateSingupData}=require("./utilies/valdation")
 const bcrypt=require("bcrypt");
 const cookieParser=require("cookie-parser");
 const jwt=require("jsonwebtoken")
+const {userAuth}=require("./MIDDLEWARE/auth")
 
 
 
@@ -272,11 +273,15 @@ app.post("/signup", async (req, res) => {
       return res.status(400).send("Invalid password");
       }
       //create a JWT tokens
-      const token=await jwt.sign({id:user.id},"Abjisjk@#123")
+      const token=await jwt.sign({id:user.id},"Abjisjk@#123",{
+         expiresIn:"1h" // cookies expires in 1 hours after login
+      })
          console.log(token)
 
       //Add the token to cookie and send the response back to the user..
-      res.cookie("token",token   );
+      res.cookie("token",token,{
+         expires:"1h"
+      } );
       // Send success response after validation
       res.send("Login successful !!!");
 
@@ -285,41 +290,26 @@ app.post("/signup", async (req, res) => {
    }
  });
 
- /// User profile
- app.get("/profile",  async (req, res) => {
+ /// User profile API
+ app.get("/profile", userAuth, async (req, res) => {
   try{
-    // Get the token from the cookie
-
-    const cookie=req.cookies
-    const{token}=cookie;
-    if(!token){
-      throw new Error("invaild Token")
-    }
-    
- 
-    // Validate the tokens
-    const decodedMsg=await jwt.verify(token,"Abjisjk@#123")
-    console.log(decodedMsg)
-    const {id}=decodedMsg
-    console.log("Logged in user id : "+ id)
-     // get user profile through the id beacause of token and cookies
- 
-     const user=await User.findById(id)
-     res.send(user)
-     if(!user){
-      throw new Error ("User not Exist.")
-     }
+      const user=req.user;
+      res.send(user);
   }
   catch(err){
    res.status(404).send("Error" +err.message)
   }
+ });
 
+//Send Connection Request API
+// app.post("/sendConnectionRequest", userAuth, async(req, res) => {
+//    const user = req.user;
+//    console.log("Received request body:");
+//    console.log("Sending a connection request!");
+//    res.send(user)
 
    
-
-   
-   });
-
+// });
    
 
 connectDB()
