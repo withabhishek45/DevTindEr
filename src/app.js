@@ -1,6 +1,7 @@
 const express=require('express')
 const connectDB=require("./config/database")
 const User=require("./models/user")
+const {validateSingupData}=require("./utilies/valdation")
 const app=express();
 app.use(express.json(   ))
 
@@ -126,7 +127,7 @@ app.get("/feed",async(req,res)=>{
 
 
 
-
+// Sign up of the users
 
 // app.post("/signup",async(req,res)=>{
 
@@ -159,7 +160,56 @@ app.get("/feed",async(req,res)=>{
 //       }
 // })
 
+// app.post("/signup", async (req, res) => {
+
+//    // SignUp  vaildations
+
+//    const  vaildData=validateSingupData(req);
+//    if(!vaildData) return res.status(400).send("Invalid Data");
+  
+
+//    console.log(req.body);
+ 
+//    // Extract email and name from request body
+//    const { email, name } = req.body;
+ 
+//    try {
+       
+
+//      // Check if the email already exists in the database
+//      const existingUserByEmail = await User.findOne({ email });
+//      if (existingUserByEmail) {
+//        return res.status(400).send("Email already in use.");
+//      }
+ 
+//      // Check if the name already exists in the database
+//      const existingUserByName = await User.findOne({ name });
+//      if (existingUserByName) {
+//        return res.status(400).send("Name already in use.");
+//      }
+ 
+//      // Create a new user instance if no duplicates found
+//      const user = new User(req.body);
+ 
+//      // Save the new user to the database
+//      await user.save();
+ 
+//      // Send success response after saving
+//      res.send("User created successfully.");
+//    } catch (err) {
+//      // Catch any errors that occur during the save process
+//      res.status(400).send("User data not saved: " + err.message);
+//    }
+//  });
+ 
 app.post("/signup", async (req, res) => {
+
+   // SignUp validations
+   const validData = validateSingupData(req);
+   if (validData) {
+     return res.status(400).send(validData.error); // Send the actual error message from validation
+   }
+ 
    console.log(req.body);
  
    // Extract email and name from request body
