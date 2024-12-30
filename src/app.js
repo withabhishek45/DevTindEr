@@ -4,6 +4,7 @@ const User=require("./models/user")
 const {validateSingupData}=require("./utilies/valdation")
 const bcrypt=require("bcrypt");
 const cookieParser=require("cookie-parser");
+const jwt=require("jsonwebtoken")
 
 
 
@@ -271,10 +272,11 @@ app.post("/signup", async (req, res) => {
       return res.status(400).send("Invalid password");
       }
       //create a JWT tokens
-
+      const token=await jwt.sign({id:user.id},"Abjisjk@#123")
+         console.log(token)
 
       //Add the token to cookie and send the response back to the user..
-      res.cookie("token","kdjngsdgnskkjndsk");
+      res.cookie("token",token   );
       // Send success response after validation
       res.send("Login successful !!!");
 
@@ -285,10 +287,36 @@ app.post("/signup", async (req, res) => {
 
  /// User profile
  app.get("/profile",  async (req, res) => {
-   // Get the token from the cookie
-   const cookie=req.cookies
-   console.log(cookie)
-   res.send("reading cokkiess....")
+  try{
+    // Get the token from the cookie
+
+    const cookie=req.cookies
+    const{token}=cookie;
+    if(!token){
+      throw new Error("invaild Token")
+    }
+    
+ 
+    // Validate the tokens
+    const decodedMsg=await jwt.verify(token,"Abjisjk@#123")
+    console.log(decodedMsg)
+    const {id}=decodedMsg
+    console.log("Logged in user id : "+ id)
+     // get user profile through the id beacause of token and cookies
+ 
+     const user=await User.findById(id)
+     res.send(user)
+     if(!user){
+      throw new Error ("User not Exist.")
+     }
+  }
+  catch(err){
+   res.status(404).send("Error" +err.message)
+  }
+
+
+   
+
    
    });
 
