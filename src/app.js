@@ -128,28 +128,71 @@ app.get("/feed",async(req,res)=>{
 
 
 
-app.post("/signup",async(req,res)=>{
+// app.post("/signup",async(req,res)=>{
 
 
-   console.log(req.body)
+//    console.log(req.body)
   
-   //  creating new user model
-   const user=new User(req.body)
-   // const user=new USer({
-   //    name:"Abhishek kr",
-   //    email:"abhishek123@gmail.com",
-   //    password:"123456789",
-   //    phone:"015157",
-   //    address:"RAnchi jh",
-   //    role:"Student"
-   // });
-   try{  
-       await user.save();
-   res.send("User created successfully");
-   }catch(err){
-      res.status(400).send("User Data Not Saved  "+err.message);
-      }
-})
+//    //  creating new user model
+//    const user=new User(req.body)
+//    // const user=new USer({
+//    //    name:"Abhishek kr",
+//    //    email:"abhishek123@gmail.com",
+//    //    password:"123456789",
+//    //    phone:"015157",
+//    //    address:"RAnchi jh",
+//    //    role:"Student"
+//    // });
+//    try{  
+//        await user.save()
+//   .then((user) => console.log("User created:", user))
+//   .catch((err) => {
+//     if (err.code === 11000) {
+//       console.log("Duplicate key error. User already exists.");
+//     } else {
+//       console.log("Error:", err.message);
+//     }
+//   });
+//    res.send("User created successfully");
+//    }catch(err){
+//       res.status(400).send("User Data Not Saved  "+err.message);
+//       }
+// })
+
+app.post("/signup", async (req, res) => {
+   console.log(req.body);
+ 
+   // Extract email and name from request body
+   const { email, name } = req.body;
+ 
+   try {
+     // Check if the email already exists in the database
+     const existingUserByEmail = await User.findOne({ email });
+     if (existingUserByEmail) {
+       return res.status(400).send("Email already in use.");
+     }
+ 
+     // Check if the name already exists in the database
+     const existingUserByName = await User.findOne({ name });
+     if (existingUserByName) {
+       return res.status(400).send("Name already in use.");
+     }
+ 
+     // Create a new user instance if no duplicates found
+     const user = new User(req.body);
+ 
+     // Save the new user to the database
+     await user.save();
+ 
+     // Send success response after saving
+     res.send("User created successfully.");
+   } catch (err) {
+     // Catch any errors that occur during the save process
+     res.status(400).send("User data not saved: " + err.message);
+   }
+ });
+ 
+ 
    
 
 connectDB()

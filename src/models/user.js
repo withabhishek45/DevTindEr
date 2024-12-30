@@ -3,17 +3,18 @@ var validator = require('validator');
 
 const userSchema = new mongoose.Schema(
   {
-    name: { type: String, required: true },
+    name: { type: String, required: true,unique:true },
     email: {
       type: String,
-      required: true,
-      unique: true,
+      required: [true,"Email is required"],
+      unique:true,
       lowercase: true,
       trim: true,
-      validate: {
-        validator: validator.isEmail,
-        message: "Please enter a valid email address", // Custom error message for invalid emails
-      },
+      validator(value){
+        if(!validator.isEmail(value)){
+            throw new Error('Invalid email')
+            }   
+      }
     },
     password: { type: String, required: true ,
         validate: {
@@ -48,6 +49,9 @@ const userSchema = new mongoose.Schema(
     timestamps: true, // This ensures createdAt and updatedAt fields are automatically added
   }
 );
+
+
+
 
 const User = mongoose.model("User", userSchema);
 module.exports = User;
