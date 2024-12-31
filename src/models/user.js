@@ -1,6 +1,8 @@
 const { compare } = require("bcrypt");
 const mongoose = require("mongoose");
 var validator = require('validator');
+const bcrypt=require("bcrypt");
+const jwt=require("jsonwebtoken")
 
 const userSchema = new mongoose.Schema(
   {
@@ -18,17 +20,7 @@ const userSchema = new mongoose.Schema(
       }
     },
     password: { type: String, required: true ,
-        // validate: {
-        //     validator: function (value) {
-        //       // Strong password regex: Minimum 8 characters, at least one uppercase letter, one lowercase letter, one number, and one special character
-        //       const strongPasswordRegex =
-        //         /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
-        //       return strongPasswordRegex.test(value);
-        //     },
-        //     message:
-        //       "Password must be at least 8 characters long and include one uppercase letter, one lowercase letter, one number, and one special character.",
-        //   }
-
+     
     },
     phone: { type: String },
     address: { type: String },
@@ -50,6 +42,7 @@ const userSchema = new mongoose.Schema(
     timestamps: true, // This ensures createdAt and updatedAt fields are automatically added
   }
 );
+
 // UserSchema Methods for jwt token
 userSchema.methods.getJWT =async function() {
   const user = this;
@@ -65,14 +58,13 @@ userSchema.methods.getJWT =async function() {
       const user = this;
       const hashedPassword = user.password;
       const isPasswordValid=await bcrypt.compare(passwordInputByUser, user.password);
-      return isPasswordValidValid;
+      return isPasswordValid;
       };
 
       
 
-        
+// const User = mongoose.model("User", userSchema);
 
-
-
-const User = mongoose.model("User", userSchema);
+// Avoid OverwriteModelError
+const User = mongoose.models.User || mongoose.model("User", userSchema);
 module.exports = User;

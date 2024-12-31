@@ -1,17 +1,27 @@
 const express=require('express')
 const connectDB=require("./config/database")
-const User=require("./models/user")
+
 const {validateSingupData}=require("./utilies/valdation")
 const bcrypt=require("bcrypt");
 const cookieParser=require("cookie-parser");
 const jwt=require("jsonwebtoken")
 const {userAuth}=require("./MIDDLEWARE/auth")
-
+//const User=require("../models/user")
 
 
 const app=express();
 app.use(express.json());
 app.use(cookieParser());
+
+//Importing all the APIs
+const authRouter=require("./routers/auth");
+const profileRouter=require("./routers/profile")
+const requestRouter=require("./routers/request")
+
+app.use("/",authRouter)
+app.use("/",profileRouter)
+app.use("/",requestRouter)
+
 
 //Getting a user by Role
 app.get("/user",async (req,res)=>{
@@ -40,32 +50,6 @@ app.delete("/user",async (req,res)=>{
          }
       }
 )
-// Update Data of the user
-// app.patch("/user/:id" ,async(req,res)=>{
-//    const id=req.params?.id;
-//    const data=req.body
- 
-
-//    try{
-//        // Upadting Certain item , not sensitive item and not insert dummy key-value
-//   const UpadteAllowed=[
-//    // not email allowed
-//    "name","password","role","address","gender", ]
-//    const isUpadteAllowed=Object.keys(data).every((k)=>
-//       UpadteAllowed.includes(k)
-//    );
-//    if(!isUpadteAllowed){
-//       throw new Error("Invalid fields to update , Update Not Allowed" )
-
-//    }
-//       const user=await User.findByIdAndUpdate(id,{data},{returnDocument:"after"});
-//          console.log(user)
-//          res.send("Data Updated Successfully...")
-//          }
-//          catch(err){
-//             res.status(404).send("something went wrong!" + err.message)
-//             }
-
 
 
 // })
@@ -132,219 +116,6 @@ app.get("/feed",async(req,res)=>{
       }
 })
 
-
-
-
-// Sign up of the users
-
-// app.post("/signup",async(req,res)=>{
-
-
-//    console.log(req.body)
-  
-//    //  creating new user model
-//    const user=new User(req.body)
-//    // const user=new USer({
-//    //    name:"Abhishek kr",
-//    //    email:"abhishek123@gmail.com",
-//    //    password:"123456789",
-//    //    phone:"015157",
-//    //    address:"RAnchi jh",
-//    //    role:"Student"
-//    // });
-//    try{  
-//        await user.save()
-//   .then((user) => console.log("User created:", user))
-//   .catch((err) => {
-//     if (err.code === 11000) {
-//       console.log("Duplicate key error. User already exists.");
-//     } else {
-//       console.log("Error:", err.message);
-//     }
-//   });
-//    res.send("User created successfully");
-//    }catch(err){
-//       res.status(400).send("User Data Not Saved  "+err.message);
-//       }
-// })
-
-// app.post("/signup", async (req, res) => {
-
-//    // SignUp  vaildations
-
-//    const  vaildData=validateSingupData(req);
-//    if(!vaildData) return res.status(400).send("Invalid Data");
-  
-
-//    console.log(req.body);
- 
-//    // Extract email and name from request body
-//    const { email, name } = req.body;
- 
-//    try {
-       
-
-//      // Check if the email already exists in the database
-//      const existingUserByEmail = await User.findOne({ email });
-//      if (existingUserByEmail) {
-//        return res.status(400).send("Email already in use.");
-//      }
- 
-//      // Check if the name already exists in the database
-//      const existingUserByName = await User.findOne({ name });
-//      if (existingUserByName) {
-//        return res.status(400).send("Name already in use.");
-//      }
- 
-//      // Create a new user instance if no duplicates found
-//      const user = new User(req.body);
- 
-//      // Save the new user to the database
-//      await user.save();
- 
-//      // Send success response after saving
-//      res.send("User created successfully.");
-//    } catch (err) {
-//      // Catch any errors that occur during the save process
-//      res.status(400).send("User data not saved: " + err.message);
-//    }
-//  });
- 
-app.post("/signup", async (req, res) => {
-
-   // SignUp validations
-   const validData = validateSingupData(req);
-   if (validData) {
-     return res.status(400).send(validData.error); // Send the actual error message from validation
-   }
-
-   // Encrypt the password
-   const{phone,password,address,role,gender}=req.body
-   const pwdHash= await bcrypt.hash(password,10)// 10X no of round encryption 
-   console.log(pwdHash)
-   // console.log(req.body);
- 
-   // Extract email and name from request body
-   const { email, name } = req.body;
- 
-   try {
-     // Check if the email already exists in the database
-     const existingUserByEmail = await User.findOne({ email });
-     if (existingUserByEmail) {
-       return res.status(400).send("Email already in use.");
-     }
- 
-     // Check if the name already exists in the database
-     const existingUserByName = await User.findOne({ name });
-     if (existingUserByName) {
-       return res.status(400).send("Name already in use.");
-     }
- 
-     // Create a new user instance if no duplicates found
-     const user = new User({
-      email,name,phone,password:pwdHash,address,role,gender
-     });
- 
-     // Save the new user to the database
-     await user.save();
- 
-     // Send success response after saving
-     res.send("User created successfully.");
-   } catch (err) {
-     // Catch any errors that occur during the save process
-     res.status(400).send("User data not saved: " + err.message);
-   }
- });
- 
- 
- // Login  and validate emil pwd
-//  app.post("/login",async (req, res) => {
-//    // Login validations
-//    try{
-//       const {email,password}=req.body
-//       // check email
-//       const user = await User.findOne({ email });
-//       if (!user) {
-//          return res.status(400).send("Email not found");
-//          }
-//          // check password
-//     const isPwdValid=await bcrypt.compare(password,user.password)
-//     if(!isPwdValid){
-//       return res.status(400).send("Invalid password");
-//       }
-//       //create a JWT tokens
-//       const token=await jwt.sign({id:user.id},"Abjisjk@#123",{
-//          expiresIn:"1h" // cookies expires in 1 hours after login
-//       })
-//          console.log(token)
-
-//       //Add the token to cookie and send the response back to the user..
-//       res.cookie("token",token,{
-//          expires:"1h"
-//       } );
-//       // Send success response after validation
-//       res.send("Login successful !!!");
-
-//    }catch(err){
-//       res.status(400).send("Invalid email or password");
-//    }
-//  });
-app.post("/login", async (req, res) => {
-   try {
-     const { email, password } = req.body;
- 
-     // Check if email exists
-     const user = await User.findOne({ email });
-     if (!user) {
-       return res.status(400).send("Email not found");
-     }
- 
-     // Validate password
-     const isValidPassword = await bcrypt.validatePassword(password);
-     if (isValidPassword) {
-      // Create JWT token
-      const token = await user.getJWT();
-       // Add the token to the cookie
-     res.cookie("token", token, {
-      httpOnly: true, // Prevents client-side JavaScript from accessing the cookie
-      maxAge: 3600000, // 1 hour in milliseconds
-    });
-
-    // Send success response
-    res.send("Login successful!");
-    }
-    } catch (err) {
-     console.error(err);
-     res.status(500).send("An error occurred. Please try again.");
-   }
- });
-
- /// User profile API
- app.get("/profile", userAuth, async (req, res) => {
-  try{
-      const user=req.user;
-      res.send(user);
-  }
-  catch(err){
-   res.status(404).send("Error" +err.message)
-  }
- });
-
-//Send Connection Request API
-// app.post("/sendConnectionRequest", userAuth, async(req, res) => {
-//    const user = req.user;
-//    console.log("Received request body:");
-//    console.log("Sending a connection request!");
-//    res.send(user)
-
-   
-// });
-app.post("/sendConnectionRequest", (req, res) => {
-   console.log("Request Body:", req.body); // Log the incoming body
-   res.send("Request received!");
-});
-
-   
 
 connectDB()
 .then(()=>{
