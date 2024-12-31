@@ -117,12 +117,20 @@ AuthRouter.post("/signup", async (req, res) => {
 //       res.status(500).json({ success: false, message: "An error occurred. Please try again." });
 //     }
 //   });
-  
 
-  //Logout of the users
-  AuthRouter.get("/logout", (req, res) => {
-    res.clearCookie("token");
-    res.send("Logged out successfully");
+
+
+//Logout of the users
+ 
+
+       //Logout 
+AuthRouter.post("/logout", (req, res) => {
+    // res.clearCookie("token"); or
+    res
+       .cookie("token",null,{
+        expires:new Date(Date.now())
+       })
+       .send("Logged out successfully !!! ");
     });
 
 module.exports=AuthRouter;
