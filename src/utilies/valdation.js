@@ -19,6 +19,22 @@ const validateSingupData = (req) => {
 
 
 };
+const validateEditProfileData=(req)=>{
+    const allowedUpdates=[
+        "name",
+        "phone",
+        "role",
+        "address",
+        "gender"
+    ]
+    const isEditAllowed=Object.keys(req.body).every((field)=>
+        allowedUpdates.includes(field));
+    
+    return isEditAllowed;
+
+
+}
 module.exports = {
-    validateSingupData
+    validateSingupData,
+    validateEditProfileData
 };
