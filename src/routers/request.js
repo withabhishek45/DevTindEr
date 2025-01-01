@@ -35,6 +35,13 @@ requestRouter.post("/request/sent/:status/:toUserID", userAuth, async (req, res)
         const toUserId = req.params.toUserID; // Recipient's User ID
         const status = req.params.status; // Status of the request (e.g., pending, accepted)
 
+        // API using for only ignoed and interested then
+        const allowedStatus=["interested","ignored"]
+        if(!allowedStatus.includes(status)){
+            return res.status(400).json({message:"Invalid status"})
+            }
+        
+
         // Create a new instance of the ConnectionRequest model
         const newConnectionRequest = new ConnectionRequest({
             fromUserId,
@@ -56,7 +63,7 @@ requestRouter.post("/request/sent/:status/:toUserID", userAuth, async (req, res)
         });
     }
 });
-    
+
 
 
 
