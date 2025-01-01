@@ -2,7 +2,7 @@ const express = require("express");
 const userAuth = require("../MIDDLEWARE/auth");
 const ConnectionRequest = require("../models/connectionRequest");
 const mongoose = require("mongoose");
-const User=require("../models/user")
+const User = require("../models/user");
 
 const requestRouter = express.Router();
 
@@ -18,15 +18,21 @@ requestRouter.post("/request/sent/:status/:toUserID", userAuth, async (req, res)
             return res.status(400).json({ message: "Invalid status provided. Allowed values: interested, ignored." });
         }
 
+        // Fixing the issue if toUser === fromUser
+        if (fromUserId == toUserId) {
+            return res.status(400).json({ message: "You cannot send a request to yourself." });
+        }
+
         // Check if toUserId is a valid ObjectId
         if (!mongoose.Types.ObjectId.isValid(toUserId)) {
             return res.status(400).json({ message: "Invalid User ID." });
         }
-        // Check if the touser has  exists in DB or  not
+
+        // Check if the toUser exists in DB or not
         const toUser = await User.findById(toUserId);
         if (!toUser) {
             return res.status(404).json({ message: "User not found." });
-            }
+        }
 
         // Check for existing connection requests (for mutual requests or already existing one)
         const existingRequest = await ConnectionRequest.findOne({
