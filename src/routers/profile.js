@@ -29,7 +29,10 @@ profileRouter.get("/profile", userAuth, async (req, res) => {
         // Save the updated user to the database
           await loggedInUser.save()
 
-        res.send("Profile Sucess!")
+        res.json({
+            message:'${loggedInUser.name} your profile update sucessfully!',
+            data:loggedInUser,
+        })
     }
    catch(err){
     res.status(404).send("Error: " + err.message);
