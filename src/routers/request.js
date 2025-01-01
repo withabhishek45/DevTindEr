@@ -8,19 +8,17 @@ const requestRouter = express.Router();
 
 requestRouter.post("/request/sent/:status/:toUserID", userAuth, async (req, res) => {
     try {
+        console.log("Received request with params:", req.params);
+        console.log("Logged-in user ID:", req.user._id);
+        
         const fromUserId = req.user._id; // Logged-in user's ID
         const toUserId = req.params.toUserID; // Recipient's User ID
         const status = req.params.status; // Status of the request (e.g., interested, ignored)
 
-        // Validate the status
+        // Validate the status (make sure it's a valid status)
         const allowedStatus = ["interested", "ignored"];
         if (!allowedStatus.includes(status)) {
             return res.status(400).json({ message: "Invalid status provided. Allowed values: interested, ignored." });
-        }
-
-        // Fixing the issue if toUser === fromUser
-        if (fromUserId == toUserId) {
-            return res.status(400).json({ message: "You cannot send a request to yourself." });
         }
 
         // Check if toUserId is a valid ObjectId
@@ -34,6 +32,11 @@ requestRouter.post("/request/sent/:status/:toUserID", userAuth, async (req, res)
             return res.status(404).json({ message: "User not found." });
         }
 
+        // Ensure the user is not sending a request to themselves
+        if (fromUserId.toString() === toUserId.toString()) {
+            return res.status(400).json({ message: "You cannot send a connection request to yourself." });
+        }
+
         // Check for existing connection requests (for mutual requests or already existing one)
         const existingRequest = await ConnectionRequest.findOne({
             $or: [
@@ -44,7 +47,7 @@ requestRouter.post("/request/sent/:status/:toUserID", userAuth, async (req, res)
 
         if (existingRequest) {
             return res.status(409).json({
-                message: "Connection request already exists.",
+                message: "A connection request already exists between these users.",
                 existingRequest,
             });
         }
@@ -61,13 +64,15 @@ requestRouter.post("/request/sent/:status/:toUserID", userAuth, async (req, res)
 
         // Respond with success message and saved data
         res.status(201).json({
-            message: "Connection Request Sent successfully.",
+            message: `${req.user.name} has successfully sent a connection request to ${toUser.name}.`,
             data,
         });
     } catch (err) {
         console.error("Error while creating connection request:", err);
         res.status(500).json({
-            error: "An unexpected error occurred. Please try again later.",
+            success: false,
+            message: "An unexpected error occurred. Please try again later.",
+            error: err.message, // Display the error message for better debugging
         });
     }
 });
