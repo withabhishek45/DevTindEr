@@ -1,70 +1,63 @@
-const express=require("express");
+const express = require("express");
 const userAuth = require("../MIDDLEWARE/auth");
-const ConnectionRequest=require("../models/connectionRequest")
-const requestRouter =express.Router();
+const ConnectionRequest = require("../models/connectionRequest");
+const mongoose = require("mongoose");
 
-// requestRouter.post("/request/sent/:status/:toUserID",userAuth,async(req, res) => {
-//     try{
-//         const fromUserId=req.user._id;
-//         const toUserId=req.params.toUserID;
-//         const status=req.params.status;
-
-//         // New instance of conn req model
-//         const newConnectionRequest = new ConnectionRequest({
-//             fromUser:fromUserId,
-//             toUser:toUserId,
-//             status:status
-//             });
-//         // save the data in db
-//         const data= await ConnectionRequest.save();
-
-//         res.status(201).json({message:"Connection Request Sent successfully",data});
-
-
-//     }catch(err){
-//         res.status(400).send(err.msg)
-//     }
-
-
-    
-//  });
+const requestRouter = express.Router();
 
 requestRouter.post("/request/sent/:status/:toUserID", userAuth, async (req, res) => {
     try {
         const fromUserId = req.user._id; // Logged-in user's ID
         const toUserId = req.params.toUserID; // Recipient's User ID
-        const status = req.params.status; // Status of the request (e.g., pending, accepted)
+        const status = req.params.status; // Status of the request (e.g., interested, ignored)
 
-        // API using for only ignoed and interested then
-        const allowedStatus=["interested","ignored"]
-        if(!allowedStatus.includes(status)){
-            return res.status(400).json({message:"Invalid status"})
-            }
-        
+        // Validate the status
+        const allowedStatus = ["interested", "ignored"];
+        if (!allowedStatus.includes(status)) {
+            return res.status(400).json({ message: "Invalid status provided. Allowed values: interested, ignored." });
+        }
 
-        // Create a new instance of the ConnectionRequest model
+        // Check if toUserId is a valid ObjectId
+        if (!mongoose.Types.ObjectId.isValid(toUserId)) {
+            return res.status(400).json({ message: "Invalid User ID." });
+        }
+
+        // Check for existing connection requests (for mutual requests or already existing one)
+        const existingRequest = await ConnectionRequest.findOne({
+            $or: [
+                { fromUserId: fromUserId, toUserId: toUserId },
+                { fromUserId: toUserId, toUserId: fromUserId },
+            ],
+        });
+
+        if (existingRequest) {
+            return res.status(409).json({
+                message: "Connection request already exists.",
+                existingRequest,
+            });
+        }
+
+        // Create a new connection request
         const newConnectionRequest = new ConnectionRequest({
-            fromUserId,
-            toUserId,
+            fromUserId: fromUserId,
+            toUserId: toUserId,
             status,
         });
 
-        // Save the new connection request to the database
+        // Save the connection request to the database
         const data = await newConnectionRequest.save();
 
         // Respond with success message and saved data
         res.status(201).json({
-            message: "Connection Request Sent successfully",
+            message: "Connection Request Sent successfully.",
             data,
         });
     } catch (err) {
-        res.status(400).json({
-            error: "Error! " + err.message,
+        console.error("Error while creating connection request:", err);
+        res.status(500).json({
+            error: "An unexpected error occurred. Please try again later.",
         });
     }
 });
 
-
-
-
-module.exports=requestRouter;
+module.exports = requestRouter;
